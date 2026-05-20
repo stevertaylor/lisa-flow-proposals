@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[codz]
+*$py.class
+*.so
+.ipynb_checkpoints/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# OS / editor
+.DS_Store
+*.swp
+
+# Large MCMC backends (regenerate via scripts/v?/run_v?_pipeline.sh)
+data/flow_benchmark/*.h5
+
+# Large flow pickles (regenerate via flow_v?_fit*.py)
+data/flow_benchmark/flow_6mo_v2_*.pkl
+data/flow_benchmark/flow_6mo_v5_rung*.pkl
+
+# Pipeline run logs
+data/flow_benchmark/v?_logs/
+*.log
