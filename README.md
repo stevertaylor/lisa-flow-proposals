@@ -1,6 +1,6 @@
 # lisa-flow-proposals
 
-Normalizing-flow MCMC proposals for LISA Galactic Binary recovery, benchmarked against `StretchMove` across observation times. Two staged experiments:
+Normalizing-flow MCMC proposals for LISA Galactic Binary recovery, benchmarked against `StretchMove` across observation times. Two staged experiments that built from v1-3 that were unsuccessful:
 
 - **v4** — single flow trained on a 6-month MCMC chain, reused at 6 → 12 months.
 - **v5** — per-temperature flow stack, frozen ladder, reused at 6 → 12 months. Fixes the hot-rung acceptance collapse seen in v4.
@@ -19,7 +19,7 @@ Cold-chain (β=1) mean ± std across 24 walkers:
 |  9 mo | 0.342 / 7.22 / 28.51 | 0.245 / 3.72 / 36.72 |
 | 12 mo | 0.348 / 7.47 / 28.03 | 0.175 / 4.29 / 32.63 |
 
-v4 beats `StretchMove` on ESS/sec at every Tobs even though cold acceptance falls — each accepted move is far better than a `StretchMove` step. But the **hot-rung acceptance collapses to ~0.002** because a single cold-mode flow is a poor proposal for tempered chains targeting the prior (gotcha #3 below).
+v4 beats `StretchMove` on ESS/sec at every Tobs even though cold acceptance falls — each accepted move is far better than a `StretchMove` step. But the **hot-rung acceptance collapses to ~0.002** because a single cold-mode flow is a poor proposal for tempered chains targeting the prior (lesson-learned #3 below).
 
 ### v5 — per-temperature flow stack, frozen ladder, reused at 6 → 12 months
 
@@ -51,13 +51,13 @@ flow = normalizing_flows_fit(
     chain,                        # (n_samples, 6), e.g. cold chain post-burn
     max_epochs=1500,              # patience=30 early stop
     rng_seed=42,
-    prior_bounds=PRIOR_BOUNDS,    # critical — see gotcha 1
+    prior_bounds=PRIOR_BOUNDS,    # critical — see lessons learned 1
 )
 ```
 
 Defaults (6 spline layers, 4 knots, 200 marginal-CDF points) are fine.
 
-## Gotchas
+## Lessons learned
 
 1. **Always set `prior_bounds`** when fitting on a bounded-prior MCMC chain. Without it the flow's marginal CDF spans only the chain's observed `[min, max]`. Walker states near the actual prior edge then fall outside the flow's support → `log_q(x) = -inf` → MH rejects. This single argument moved cold MH acceptance from 0.097 → 0.516 in v2.
 
